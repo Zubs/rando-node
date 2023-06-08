@@ -10,6 +10,7 @@ const session = require("express-session");
 const authRoute = require("./routes/authRoute");
 const connectDB = require("./configs/databaseConfig");
 const cookieSession = require("cookie-session");
+const path = require('path');
 
 // Initialize Passport
 require("./configs/passport");
@@ -76,7 +77,7 @@ require("./configs/passport");
 require("dotenv").config();
 
 app.get("/", (req, res) => {
-  res.render("pages/index");
+  res.sendFile(path.join(__dirname, 'views', 'pages', 'index.html'));
 });
 
 app.get("/success", (req, res) => {
@@ -90,6 +91,24 @@ app.get("/error", (req, res) => res.send("error logging in"));
 
 app.get(
   "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/candidate/auth/google",
+  function (req, res, next) {
+    process.env.user_type = "candidate";
+    next();
+  },
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/employer/auth/google",
+  function (req, res, next) {
+    process.env.user_type = "employer";
+    next();
+  },
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
